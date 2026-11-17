@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neha, AI sales coach</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;background:#f4f3f8;color:#1d1240;height:100vh;display:flex}
+button{font-family:inherit;cursor:pointer}
+.side{width:220px;flex:none;background:#150d2e;color:#cfc7ee;padding:20px 14px;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;font-size:16px;margin:0 6px 20px}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#7a3fd0,#d6516b);display:flex;align-items:center;justify-content:center;font-size:15px}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;color:#cfc7ee;background:none;border:none;text-align:left;width:100%}
+.nav:hover{background:#241a45}
+.nav.on{background:#33246a;color:#fff}
+.nav svg{width:18px;height:18px;flex:none}
+.main{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:28px;overflow:auto}
+.card{width:100%;max-width:780px;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(42,21,101,.18);display:flex;flex-direction:column;height:min(660px,calc(100vh - 56px))}
+.head{background:linear-gradient(100deg,#1c1040,#2a1565 55%,#521b80);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.who{display:flex;align-items:center;gap:16px}
+.av{width:64px;height:64px;border-radius:50%;border:3px solid #9b86e8;box-shadow:0 0 0 6px rgba(155,134,232,.2);background:#4a2b9c;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600}
+.nm{font-family:Georgia,serif;font-size:26px}
+.rl{font-size:13px;color:#b9aee6}
+.bars{display:flex;gap:3px;align-items:center;height:22px;margin-left:12px}
+.bars i{width:4px;background:#b9aee6;border-radius:2px;height:8px;transition:height .1s}
+.bars.on i{animation:w 1s infinite ease-in-out}
+.bars i:nth-child(2){height:14px;animation-delay:.15s}.bars i:nth-child(3){height:20px;animation-delay:.3s}.bars i:nth-child(4){height:12px;animation-delay:.45s}
+@keyframes w{50%{transform:scaleY(.4)}}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.pills{display:flex;gap:8px}
+.pill{background:rgba(255,255,255,.14);padding:6px 14px;border-radius:20px;font-size:14px;font-weight:500}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef5a5a;margin-right:6px}
+.state{background:linear-gradient(90deg,#7a3fd0,#d6516b);padding:6px 18px;border-radius:20px;font-size:13px;letter-spacing:2px;font-weight:600}
+.chat{flex:1;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
+.msg{max-width:84%;padding:14px 18px;border-radius:16px;border:1px solid #e6e4f0;background:#f7f7fb}
+.msg b{display:block;font-size:12px;letter-spacing:2px;color:#6b6a85;margin-bottom:4px;font-weight:600}
+.msg p{font-size:17px;line-height:1.45;white-space:pre-wrap}
+.msg.me{align-self:flex-end;background:#f3efff;border-color:#d9cffa}
+.msg.me b{color:#5b2fc4}
+.sys{align-self:center;font-size:13px;color:#a33;background:#fdeeee;padding:8px 14px;border-radius:12px}
+.ctl{border-top:1px solid #ecebf3;background:#f9f9fc;padding:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.cb{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e3e1ee;border-radius:14px;padding:12px 20px;font-size:16px;font-weight:500;color:#1d1240}
+.cb svg{width:18px;height:18px}
+.cb.off{background:#efeaff;color:#5b2fc4}
+.cb .t{color:#6a30d6}
+.end{background:#d9534f;color:#fff;border-color:#d9534f}
+.pad{padding:32px;overflow:auto}
+.pad h2{font-size:24px;margin-bottom:6px}
+.muted{color:#6b6a85;font-size:14px;line-height:1.5}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 24px}
+.kpi{background:#f7f7fb;border-radius:14px;padding:16px}
+.kpi span{font-size:13px;color:#6b6a85}
+.kpi p{font-size:26px;font-weight:600;margin-top:4px}
+.row{display:flex;align-items:center;gap:14px;margin-bottom:12px;font-size:15px}
+.row label{width:190px}
+.tr{flex:1;height:8px;background:#ecebf3;border-radius:4px}
+.tr div{height:8px;border-radius:4px;background:linear-gradient(90deg,#7a3fd0,#d6516b)}
+.sec{margin:22px 0 6px;font-weight:600;font-size:15px}
+.sub{color:#55546e;font-size:15px;line-height:1.5}
+.sub li{margin-left:18px}
+.acts{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.pri{background:#150d2e;color:#fff;border:none;border-radius:12px;padding:12px 22px;font-size:15px;font-weight:500}
+.sec2{background:#fff;color:#1d1240;border:1px solid #e3e1ee;border-radius:12px;padding:12px 22px;font-size:15px;font-weight:500}
+.hide{display:none!important}
+.lbl{display:block;font-size:13px;font-weight:600;margin:16px 0 6px}
+input[type=text],input[type=password],select,textarea{width:100%;border:1px solid #e3e1ee;border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;color:#1d1240;background:#fff}
+textarea{min-height:110px;resize:vertical;font-size:13px;line-height:1.4}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ups{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.chk{display:flex;flex-direction:column;gap:8px;margin:18px 0}
+.chk div{display:flex;align-items:center;gap:10px;font-size:15px}
+.ok{color:#1f8a4c;font-weight:600}.no{color:#c0392b;font-weight:600}
+.item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border:1px solid #ecebf3;border-radius:12px;margin-bottom:10px;cursor:pointer;background:#fff;width:100%;text-align:left;font-size:15px}
+.item:hover{background:#f7f7fb}
+details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
+.tline{font-size:14px;line-height:1.5;margin-top:8px}.tline b{color:#5b2fc4}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#150d2e;color:#fff;padding:10px 18px;border-radius:12px;font-size:14px;display:none;z-index:9}
+@media(max-width:760px){.side{display:none}.head{flex-direction:column;align-items:flex-start;gap:12px}.two,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<aside class="side">
+<div class="brand"><div class="logo">N</div>Sales coach</div>
+<button class="nav on" id="n-call" onclick="show('start')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>New call</button>
+<button class="nav" id="n-dash" onclick="openDash()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Dashboard</button>
+<button class="nav" id="n-hist" onclick="show('hist')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg>History</button>
+<button class="nav" id="n-set" onclick="show('set')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Settings</button>
+</aside>
+
+<main class="main">
+
+<section class="card pad hide" id="p-start">
+<h2>New call</h2>
+<p class="muted">Neha will run the call with the prompt and Knowledge Book you uploaded in Settings.</p>
+<div class="chk" id="chk"></div>
+<label class="lbl" for="cand">Candidate name</label>
+<input type="text" id="cand" placeholder="Rahul">
+<div class="acts"><button class="pri" onclick="startCall()">Start call</button><button class="sec2" onclick="show('set')">Open settings</button></div>
+</section>
+
+<section class="card hide" id="p-call">
+<div class="head">
+<div class="who">
+<div class="av">N</div>
+<div><div class="nm">Neha</div><div class="rl">AI sales coach</div></div>
+<div class="bars" id="bars"><i></i><i></i><i></i><i></i></div>
+</div>
+<div class="right">
+<div class="pills"><span class="pill"><span class="dot"></span><span id="live">Live</span></span><span class="pill" id="timer">00:00</span></div>
+<span class="state" id="state">CONNECTING</span>
+</div>
+</div>
+<div class="chat" id="chat"></div>
+<div class="ctl">
+<button class="cb" id="mute" onclick="muteTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="ml">Mute</span></button>
+<button class="cb" id="cap" onclick="capTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7L4 20l1.2-4.3A8 8 0 1 1 21 12z"/></svg><span>Captions</span></button>
+<button class="cb" id="pause" onclick="pauseTog()"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span id="pl">Pause</span><span class="t" id="pt">00:00</span></button>
+<button class="cb end" onclick="endCall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 14c5-5 13-5 18 0l-3 3-3-2v-2a9 9 0 0 0-6 0v2l-3 2z"/></svg>End</button>
+</div>
+</section>
+
+<section class="card pad hide" id="p-dash"></section>
+
+<section class="card pad hide" id="p-hist"></section>
+
+<section class="card pad hide" id="p-set">
+<h2>Settings</h2>
+<p class="muted">Everything here is saved in this browser only. Nothing is sent anywhere except to Google Gemini.</p>
+<label class="lbl" for="s-key">Gemini API key</label>
+<input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
+<div class="two">
+<div><label class="lbl" for="s-live">Live voice model</label><select id="s-live"></select></div>
+<div><label class="lbl" for="s-score">Scoring model</label><select id="s-score"></select></div>
+</div>
+<div class="ups"><button class="sec2" onclick="findModels()">Find models from my key</button><span class="muted" id="mstat"></span></div>
+<label class="lbl" for="s-voice">Neha's voice</label>
+<select id="s-voice"></select>
+
+<label class="lbl">Prompt (same as in your agent builder)</label>
+<div class="ups"><button class="sec2" onclick="pick('prompt')">Upload file</button><span class="muted" id="c-prompt"></span></div>
+<textarea id="s-prompt" placeholder="Paste the prompt, or upload a .txt, .md or .docx file"></textarea>
+
+<label class="lbl">Knowledge Book</label>
+<div class="ups"><button class="sec2" onclick="pick('kb')">Upload file</button><span class="muted" id="c-kb"></span></div>
+<textarea id="s-kb" placeholder="Paste the Knowledge Book, or upload a .txt, .md or .docx file"></textarea>
+
+<label class="lbl">Rubric</label>
+<div class="ups"><button class="sec2" onclick="pick('rubric')">Upload file</button><span class="muted" id="c-rubric"></span></div>
+<textarea id="s-rubric" placeholder="Paste the rubric with dimensions, scores, fatals and pass mark"></textarea>
+<input type="file" id="file" class="hide" accept=".txt,.md,.json,.docx">
+</section>
+
+</main>
+<div id="toast"></div>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var VOICES=['Kore','Zephyr','Puck','Charon','Fenrir','Leda','Orus','Aoede','Callirrhoe','Autonoe','Enceladus','Iapetus','Umbriel','Algieba','Despina','Erinome','Algenib','Rasalgethi','Laomedeia','Achernar','Alnilam','Schedar','Gacrux','Pulcherrima','Achird','Zubenelgenubi','Vindemiatrix','Sadachbia','Sadaltager','Sulafat'];
+var S=Object.assign({key:'',voice:'Kore',liveModel:'gemini-2.5-flash-native-audio-preview-12-2025',scoreModel:'gemini-2.5-flash',prompt:'',kb:'',rubric:''},load('nsc_settings',{}));
+var calls=load('nsc_calls',[]);
+var selId=null;
+
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},4000)}
+function f(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+
+var PAGES=['start','call','dash','hist','set'];
+function show(k){
+  PAGES.forEach(function(x){$('p-'+x).classList.toggle('hide',x!==k)});
+  var m={start:'n-call',call:'n-call',dash:'n-dash',hist:'n-hist',set:'n-set'}[k];
+  ['n-call','n-dash','n-hist','n-set'].forEach(function(n){$(n).classList.toggle('on',n===m)});
+  if(k==='start')renderStart();
+  if(k==='hist')renderHist();
+  if(k==='set')fillSettings();
+}
+
+function renderStart(){
+  var items=[['Gemini API key',S.key],['Prompt',S.prompt],['Knowledge Book',S.kb],['Rubric',S.rubric]];
+  $('chk').innerHTML=items.map(function(i){return '<div><span class="'+(i[1]?'ok':'no')+'">'+(i[1]?'Ready':'Missing')+'</span>'+i[0]+'</div>'}).join('')+'<div class="muted">Voice: '+S.voice+'</div>';
+}
+
+function fillSel(sel,list,cur){
+  var l=list.slice();if(cur&&l.indexOf(cur)<0)l.unshift(cur);
+  sel.innerHTML='';l.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});sel.value=cur;
+}
+function cnt(k){var v=S[k]||'';$('c-'+k).textContent=v?v.length.toLocaleString()+' characters loaded':'Nothing loaded'}
+function fillSettings(){
+  $('s-key').value=S.key;
+  fillSel($('s-live'),[],S.liveModel);fillSel($('s-score'),[],S.scoreModel);
+  if(window.MODELS){fillSel($('s-live'),MODELS.live,S.liveModel);fillSel($('s-score'),MODELS.score,S.scoreModel)}
+  fillSel($('s-voice'),VOICES,S.voice);
+  ['prompt','kb','rubric'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
+}
+function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;save('nsc_settings',S);if(['prompt','kb','rubric'].indexOf(key)>=0)cnt(key)})}
+bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');bind('s-rubric','rubric');
+$('s-key').addEventListener('change',function(){if(this.value)findModels()});
+
+var pickKey=null;
+function pick(k){pickKey=k;$('file').value='';$('file').click()}
+$('file').addEventListener('change',function(){
+  var fl=this.files[0];if(!fl||!pickKey)return;var k=pickKey;
+  function done(t){S[k]=t;save('nsc_settings',S);$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
+  if(/\.docx$/i.test(fl.name)){
+    if(!window.mammoth){toast('Word reader did not load. Save the file as .txt and try again.');return}
+    var r=new FileReader();r.onload=function(){mammoth.extractRawText({arrayBuffer:r.result}).then(function(x){done(x.value)}).catch(function(){toast('Could not read this Word file')})};r.readAsArrayBuffer(fl);
+  }else{var r2=new FileReader();r2.onload=function(){done(String(r2.result))};r2.readAsText(fl)}
+});
+
+function findModels(){
+  if(!S.key){toast('Enter the API key first');return}
+  $('mstat').textContent='Looking up models...';
+  fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(S.key)).then(function(r){return r.json()}).then(function(j){
+    if(j.error){$('mstat').textContent='Key problem: '+j.error.message;return}
+    var live=[],score=[];
+    (j.models||[]).forEach(function(m){
+      var n=m.name.replace('models/',''),g=m.supportedGenerationMethods||[];
+      if(g.indexOf('bidiGenerateContent')>=0)live.push(n);
+      else if(g.indexOf('generateContent')>=0&&/flash/.test(n)&&!/(tts|image|embedding|live|audio|thinking-exp)/.test(n))score.push(n);
+    });
+    window.MODELS={live:live,score:score};
+    if(live.length&&live.indexOf(S.liveModel)<0){var nat=live.filter(function(n){return /native-audio/.test(n)});S.liveModel=(nat[nat.length-1]||live[0])}
+    if(score.length&&score.indexOf(S.scoreModel)<0)S.scoreModel=score[0];
+    save('nsc_settings',S);fillSettings();
+    $('mstat').textContent=live.length+' voice models and '+score.length+' scoring models found';
+  }).catch(function(){$('mstat').textContent='Could not reach Google. Check the key and network.'});
+}
+
+var ws=null,micCtx=null,outCtx=null,stream=null,node=null,ready=false,muted=false,paused=false,active=false;
+var sec=0,pauseSec=0,tick=null,tr=[],nextT=0,srcs=[],candName='',endedBy=false;
+
+function b64(buf){var s='',u=new Uint8Array(buf);for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer}
+
+function setState(t,on){$('state').textContent=t;$('bars').classList.toggle('on',!!on)}
+
+function bubble(role){
+  var d=document.createElement('div');d.className='msg'+(role==='me'?' me':'');
+  d.innerHTML='<b>'+(role==='me'?'YOU':'NEHA')+'</b><p></p>';$('chat').appendChild(d);return d.querySelector('p');
+}
+var lastP=null;
+function addText(role,text){
+  if(!text)return;
+  var last=tr[tr.length-1];
+  if(last&&last.role===role){last.text+=text}else{if(!text.trim())return;tr.push({role:role,text:text.replace(/^\s+/,'')});lastP=bubble(role)}
+  lastP.textContent=tr[tr.length-1].text;$('chat').scrollTop=$('chat').scrollHeight;
+}
+function sysLine(t){var d=document.createElement('div');d.className='sys';d.textContent=t;$('chat').appendChild(d)}
+
+var WORKLET='class P extends AudioWorkletProcessor{constructor(){super();this.b=[];this.n=0}process(i){var c=i[0][0];if(c){this.b.push(new Float32Array(c));this.n+=c.length;if(this.n>=1600){var o=new Float32Array(this.n),k=0;for(var a of this.b){o.set(a,k);k+=a.length}this.b=[];this.n=0;this.port.postMessage(o,[o.buffer])}}return true}}registerProcessor("pcm",P)';
+
+async function startCall(){
+  if(!S.key){toast('Add the Gemini API key in Settings');return}
+  if(!S.prompt){toast('Add the prompt in Settings');return}
+  candName=$('cand').value.trim()||'Candidate';
+  tr=[];lastP=null;sec=0;pauseSec=0;muted=false;paused=false;ready=false;endedBy=false;nextT=0;srcs=[];
+  $('chat').innerHTML='';$('timer').textContent='00:00';$('pt').textContent='00:00';$('pl').textContent='Pause';$('ml').textContent='Mute';$('mute').classList.remove('off');$('cap').classList.remove('off');$('chat').classList.remove('hide');$('live').textContent='Live';
+  show('call');setState('CONNECTING',false);
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,channelCount:1}});
+  }catch(e){toast('Microphone is blocked. Allow it in the browser and try again.');show('start');return}
+  micCtx=new AudioContext({sampleRate:16000});
+  outCtx=new AudioContext({sampleRate:24000});
+  try{
+    var url=URL.createObjectURL(new Blob([WORKLET],{type:'application/javascript'}));
+    await micCtx.audioWorklet.addModule(url);
+    node=new AudioWorkletNode(micCtx,'pcm');
+    micCtx.createMediaStreamSource(stream).connect(node);
+    node.port.onmessage=function(e){
+      if(!ready||muted||paused||!ws||ws.readyState!==1)return;
+      var f32=e.data,i16=new Int16Array(f32.length);
+      for(var i=0;i<f32.length;i++){var s=Math.max(-1,Math.min(1,f32[i]));i16[i]=s<0?s*32768:s*32767}
+      ws.send(JSON.stringify({realtimeInput:{audio:{data:b64(i16.buffer),mimeType:'audio/pcm;rate=16000'}}}));
+    };
+  }catch(e){toast('Audio setup failed in this browser');cleanup();show('start');return}
+  var sys=S.prompt;
+  if(S.kb)sys+='\n\nKnowledge Book:\n'+S.kb;
+  sys+='\n\nCall metadata:\ncandidate_name: '+candName;
+  ws=new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key='+encodeURIComponent(S.key));
+  ws.binaryType='arraybuffer';
+  ws.onopen=function(){
+    ws.send(JSON.stringify({setup:{
+      model:'models/'+S.liveModel,
+      generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:S.voice}}}},
+      systemInstruction:{parts:[{text:sys}]},
+      inputAudioTranscription:{},outputAudioTranscription:{}
+    }}));
+  };
+  ws.onmessage=function(e){
+    var t=typeof e.data==='string'?e.data:new TextDecoder().decode(e.data),m;
+    try{m=JSON.parse(t)}catch(x){return}
+    handle(m);
+  };
+  ws.onerror=function(){sysLine('Connection error. Check the key and the Live model in Settings.')};
+  ws.onclose=function(e){
+    if(!endedBy&&active){sysLine('Call closed'+(e.reason?': '+e.reason:'. Check the key and the Live model in Settings.'))}
+    if(!ready&&!endedBy){setState('NOT CONNECTED',false)}
+  };
+  active=true;
+  clearInterval(tick);
+  tick=setInterval(function(){if(!ready)return;if(paused){pauseSec++;$('pt').textContent=f(pauseSec)}else{sec++;$('timer').textContent=f(sec)}},1000);
+}
+
+function handle(m){
+  if(m.setupComplete){
+    ready=true;setState('LISTENING',false);
+    ws.send(JSON.stringify({realtimeInput:{text:'The call is connected. Begin the call now.'}}));
+    return;
+  }
+  var c=m.serverContent;if(!c)return;
+  if(c.interrupted){srcs.forEach(function(s){try{s.stop()}catch(e){}});srcs=[];nextT=0;setState('LISTENING',false)}
+  if(c.inputTranscription&&c.inputTranscription.text)addText('me',c.inputTranscription.text);
+  if(c.outputTranscription&&c.outputTranscription.text)addText('neha',c.outputTranscription.text);
+  if(c.modelTurn&&c.modelTurn.parts){c.modelTurn.parts.forEach(function(p){if(p.inlineData&&p.inlineData.data)play(p.inlineData.data)})}
+}
+
+function play(b){
+  var i16=new Int16Array(unb64(b)),f32=new Float32Array(i16.length);
+  for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
+  var buf=outCtx.createBuffer(1,f32.length,24000);buf.copyToChannel(f32,0);
+  var s=outCtx.createBufferSource();s.buffer=buf;s.connect(outCtx.destination);
+  nextT=Math.max(nextT,outCtx.currentTime);s.start(nextT);nextT+=buf.duration;srcs.push(s);
+  setState('SPEAKING',true);
+  s.onended=function(){srcs=srcs.filter(function(x){return x!==s});if(!srcs.length&&!paused)setState('LISTENING',false)};
+}
+
+function muteTog(){muted=!muted;$('ml').textContent=muted?'Unmute':'Mute';$('mute').classList.toggle('off',muted)}
+function capTog(){$('chat').classList.toggle('hide');$('cap').classList.toggle('off')}
+function pauseTog(){
+  paused=!paused;pauseSec=0;$('pt').textContent='00:00';$('pl').textContent=paused?'Resume':'Pause';
+  if(outCtx){paused?outCtx.suspend():outCtx.resume()}
+  if(paused)setState('PAUSED',false);else setState(srcs.length?'SPEAKING':'LISTENING',!!srcs.length);
+}
+function cleanup(){
+  active=false;ready=false;clearInterval(tick);
+  try{if(ws&&ws.readyState<2)ws.close()}catch(e){}
+  try{if(stream)stream.getTracks().forEach(function(t){t.stop()})}catch(e){}
+  try{if(micCtx)micCtx.close()}catch(e){}
+  try{if(outCtx)outCtx.close()}catch(e){}
+  ws=null;micCtx=null;outCtx=null;stream=null;node=null;srcs=[];
+}
+
+async function endCall(){
+  endedBy=true;var dur=sec;cleanup();
+  var rec={id:Date.now(),date:new Date().toISOString(),candidate:candName,duration:dur,transcript:tr.slice(),eval:null,note:''};
+  calls.unshift(rec);selId=rec.id;save('nsc_calls',calls);
+  show('dash');renderDash();
+  if(tr.length<2){rec.note='The call was too short to score.';save('nsc_calls',calls);renderDash();return}
+  if(!S.rubric){rec.note='No rubric in Settings, so the call was not scored.';save('nsc_calls',calls);renderDash();return}
+  try{
+    rec.eval=await evaluate(rec);
+  }catch(e){rec.note='Scoring failed: '+(e.message||e)}
+  save('nsc_calls',calls);renderDash();
+}
+
+async function evaluate(rec){
+  var tx=rec.transcript.map(function(t){return (t.role==='me'?'CANDIDATE: ':'NEHA: ')+t.text}).join('\n');
+  var p='You are the call evaluator. Score the call transcript strictly as per the rubric below. Do not add rules of your own. Apply dimensions, scales, fatal rules and the pass mark exactly as written in the rubric.\n\nRUBRIC:\n'+S.rubric+(S.kb?'\n\nKNOWLEDGE BOOK (use it to check facts):\n'+S.kb:'')+'\n\nTRANSCRIPT:\n'+tx+'\n\nReturn JSON only in this shape: {"dimensions":[{"name":"","score":0,"max":5,"reason":""}],"fatal":{"triggered":false,"reason":""},"total_score":0,"max_total":100,"passed":false,"summary":"","strengths":[""],"growth_areas":[""]}. Use the dimension names from the rubric. Keep reasons short.';
+  var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+S.scoreModel+':generateContent?key='+encodeURIComponent(S.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:p}]}],generationConfig:{responseMimeType:'application/json',temperature:0}})});
+  var j=await r.json();
+  if(j.error)throw new Error(j.error.message);
+  var t=j.candidates[0].content.parts.map(function(x){return x.text||''}).join('');
+  return JSON.parse(t.replace(/^```json\s*|```$/g,''));
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function list(a){return (a&&a.length)?'<ul class="sub">'+a.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'<div class="sub">None</div>'}
+
+function openDash(){if(!selId&&calls.length)selId=calls[0].id;show('dash');renderDash()}
+function renderDash(){
+  var el=$('p-dash');
+  var r=calls.filter(function(c){return c.id===selId})[0];
+  if(!r){el.innerHTML='<h2>Dashboard</h2><p class="muted" style="margin-top:14px">No calls yet. Start a new call and the analytics will show here.</p><div class="acts"><button class="pri" onclick="show(\'start\')">Start a call</button></div>';return}
+  var e=r.eval,scored=calls.filter(function(c){return c.eval&&c.eval.max_total});
+  var avg=scored.length?Math.round(scored.reduce(function(a,c){return a+c.eval.total_score/c.eval.max_total*100},0)/scored.length):null;
+  var res='Not scored',sc='';
+  if(e){sc=e.total_score+'/'+e.max_total;res=(e.fatal&&e.fatal.triggered)?'Fatal':(e.passed?'Passed':'Not passed')}
+  var h='<h2>Dashboard</h2><p class="muted">'+esc(r.candidate)+', '+new Date(r.date).toLocaleString()+'. '+calls.length+' call'+(calls.length>1?'s':'')+' so far'+(avg!==null?', average score '+avg+'%':'')+'.</p>';
+  h+='<div class="kpis"><div class="kpi"><span>Score</span><p>'+(sc||'None')+'</p></div><div class="kpi"><span>Result</span><p>'+res+'</p></div><div class="kpi"><span>Call time</span><p>'+f(r.duration)+'</p></div></div>';
+  if(!e&&!r.note&&r.transcript.length>=2&&S.rubric)h+='<p class="muted">Scoring the call...</p>';
+  if(r.note)h+='<p class="muted">'+esc(r.note)+'</p>';
+  if(e){
+    (e.dimensions||[]).forEach(function(d){h+='<div class="row" title="'+esc(d.reason)+'"><label>'+esc(d.name)+'</label><div class="tr"><div style="width:'+Math.max(0,Math.min(100,d.score/d.max*100))+'%"></div></div><span>'+d.score+'/'+d.max+'</span></div>'});
+    if(e.fatal&&e.fatal.triggered)h+='<div class="sec">Fatal</div><div class="sub">'+esc(e.fatal.reason)+'</div>';
+    h+='<div class="sec">Summary</div><div class="sub">'+esc(e.summary)+'</div>';
+    h+='<div class="sec">What went well</div>'+list(e.strengths);
+    h+='<div class="sec">What to improve</div>'+list(e.growth_areas);
+    var rs=(e.dimensions||[]).filter(function(d){return d.reason});
+    if(rs.length)h+='<details><summary>Reason for each score</summary>'+rs.map(function(d){return '<div class="tline"><b>'+esc(d.name)+':</b> '+esc(d.reason)+'</div>'}).join('')+'</details>';
+  }
+  h+='<details><summary>Transcript</summary>'+r.transcript.map(function(t){return '<div class="tline"><b>'+(t.role==='me'?'Candidate':'Neha')+':</b> '+esc(t.text)+'</div>'}).join('')+'</details>';
+  h+='<div class="acts"><button class="pri" onclick="show(\'start\')">Try again</button><button class="sec2" onclick="dl(\'txt\')">Download transcript</button><button class="sec2" onclick="dl(\'json\')">Download report</button></div>';
+  el.innerHTML=h;
+}
+function dl(kind){
+  var r=calls.filter(function(c){return c.id===selId})[0];if(!r)return;
+  var body,name,type;
+  if(kind==='txt'){body=r.transcript.map(function(t){return (t.role==='me'?'Candidate: ':'Neha: ')+t.text}).join('\n\n');name='transcript.txt';type='text/plain'}
+  else{body=JSON.stringify(r,null,2);name='report.json';type='application/json'}
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type:type}));a.download=name;a.click();
+}
+
+function renderHist(){
+  var el=$('p-hist');
+  if(!calls.length){el.innerHTML='<h2>History</h2><p class="muted" style="margin-top:14px">Past calls will show here.</p>';return}
+  el.innerHTML='<h2>History</h2><p class="muted" style="margin-bottom:14px">Click a call to open it in the Dashboard.</p>'+calls.map(function(c){
+    var s=c.eval?c.eval.total_score+'/'+c.eval.max_total:'Not scored';
+    return '<button class="item" onclick="selId='+c.id+';openDash()"><span>'+esc(c.candidate)+', '+new Date(c.date).toLocaleString()+'</span><span>'+s+', '+f(c.duration)+'</span></button>';
+  }).join('')+'<div class="acts"><button class="sec2" onclick="if(confirm(\'Delete all past calls?\')){calls=[];selId=null;save(\'nsc_calls\',calls);renderHist()}">Clear history</button></div>';
+}
+
+show('start');
+</script>
+</body>
+</html>
