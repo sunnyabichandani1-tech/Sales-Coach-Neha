@@ -134,7 +134,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 
 <section class="card pad hide" id="p-set">
 <h2>Settings</h2>
-<p class="muted">The prompt, Knowledge Book and rubric are read from files in the code (prompt.txt, knowledge-book.txt, rubric.txt). Anything you upload here is used for this tab only and is not saved. The Gemini key is saved only in this browser on this device. It is shown as dots and is not in the code. Nothing is sent anywhere except to Google Gemini.</p>
+<p class="muted">The prompt (with the rubric inside it) and the Knowledge Book are read from files in the code (prompt.txt, knowledge-book.txt). They update on every release. Anything you upload here is used for this tab only and is not saved. The Gemini key is saved only in this browser on this device. It is shown as dots and is not in the code. Nothing is sent anywhere except to Google Gemini.</p>
 <label class="lbl" for="s-key">Gemini API key</label>
 <input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
 <div class="two">
@@ -148,7 +148,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 <div class="ups"><button class="sec2" onclick="$('photo').click()">Upload photo</button><button class="sec2" onclick="clearPhoto()">Use default</button></div>
 <input type="file" id="photo" class="hide" accept="image/*">
 
-<label class="lbl">Prompt (read from prompt.txt in the code)</label>
+<label class="lbl">Prompt with rubric (read from prompt.txt in the code)</label>
 <div class="ups"><button class="sec2" onclick="pick('prompt')">Upload to test in this tab</button><span class="muted" id="c-prompt"></span></div>
 <textarea id="s-prompt" placeholder="Paste the prompt, or upload a .txt, .md or .docx file"></textarea>
 
@@ -156,9 +156,6 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 <div class="ups"><button class="sec2" onclick="pick('kb')">Upload file</button><span class="muted" id="c-kb"></span></div>
 <textarea id="s-kb" placeholder="Paste the Knowledge Book, or upload a .txt, .md or .docx file"></textarea>
 
-<label class="lbl">Rubric (read from rubric.txt in the code)</label>
-<div class="ups"><button class="sec2" onclick="pick('rubric')">Upload file</button><span class="muted" id="c-rubric"></span></div>
-<textarea id="s-rubric" placeholder="Paste the rubric with dimensions, scores, fatals and pass mark"></textarea>
 <input type="file" id="file" class="hide" accept=".txt,.md,.json,.docx">
 </section>
 
@@ -170,10 +167,10 @@ var $=function(i){return document.getElementById(i)};
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var VOICES=['Kore','Zephyr','Puck','Charon','Fenrir','Leda','Orus','Aoede','Callirrhoe','Autonoe','Enceladus','Iapetus','Umbriel','Algieba','Despina','Erinome','Algenib','Rasalgethi','Laomedeia','Achernar','Alnilam','Schedar','Gacrux','Pulcherrima','Achird','Zubenelgenubi','Vindemiatrix','Sadachbia','Sadaltager','Sulafat'];
-function saveS(){var c=Object.assign({},S);delete c.prompt;delete c.kb;delete c.rubric;save('nsc_settings',c)}
+function saveS(){var c=Object.assign({},S);delete c.prompt;delete c.kb;delete c.rubric;delete c.sink;save('nsc_settings',c)}
 var S=Object.assign({key:'',voice:'Kore',liveModel:'gemini-2.5-flash-native-audio-preview-12-2025',scoreModel:'gemini-2.5-flash',prompt:'',kb:'',rubric:''},load('nsc_settings',{}));
 S.prompt='';S.kb='';S.rubric='';
-var FILES={prompt:'prompt.txt',kb:'knowledge-book.txt',rubric:'rubric.txt'},FROM={};
+var FILES={prompt:'prompt.txt',kb:'knowledge-book.txt'},FROM={};
 function loadFiles(){return Promise.all(Object.keys(FILES).map(function(k){return fetch(FILES[k]+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){if(t&&t.trim()&&!/^\s*<!DOCTYPE/i.test(t)){S[k]=t;FROM[k]=1}}).catch(function(){})})).then(function(){if(S.key)findModels();if(!$('p-start').classList.contains('hide'))renderStart();if(!$('p-set').classList.contains('hide'))fillSettings()})}
 delete S.key_old;
 var calls=load('nsc_calls',[]);
@@ -194,7 +191,7 @@ function show(k){
 }
 
 function renderStart(){
-  var items=[['Gemini API key',S.key],['Prompt',S.prompt],['Knowledge Book',S.kb],['Rubric',S.rubric]];
+  var items=[['Gemini API key',S.key],['Prompt (with rubric)',S.prompt],['Knowledge Book',S.kb]];
   $('chk').innerHTML=items.map(function(i){return '<div><span class="'+(i[1]?'ok':'no')+'">'+(i[1]?'Ready':'Missing')+'</span>'+i[0]+'</div>'}).join('')+'<div class="muted">Voice: '+S.voice+'</div>';
 }
 
@@ -209,10 +206,10 @@ function fillSettings(){
   fillSel($('s-live'),[],S.liveModel);fillSel($('s-score'),[],S.scoreModel);
   if(window.MODELS){fillSel($('s-live'),MODELS.live,S.liveModel);fillSel($('s-score'),MODELS.score,S.scoreModel)}
   fillSel($('s-voice'),VOICES,S.voice,1);
-  ['prompt','kb','rubric'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
+  ['prompt','kb'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
 }
-function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb','rubric'].indexOf(key)>=0){FROM[key]=0;cnt(key)}})}
-bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');bind('s-rubric','rubric');
+function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb'].indexOf(key)>=0){FROM[key]=0;cnt(key)}})}
+bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');
 $('s-key').addEventListener('change',function(){if(this.value)findModels()});
 
 var pickKey=null;
@@ -366,7 +363,7 @@ async function endCall(){
   calls.unshift(rec);selId=rec.id;save('nsc_calls',calls);
   show('dash');renderDash();
   if(tr.length<2){rec.note='The call was too short to score.';save('nsc_calls',calls);renderDash();return}
-  if(!S.rubric){rec.note='No rubric in Settings, so the call was not scored.';save('nsc_calls',calls);renderDash();return}
+  if(!S.prompt){rec.note='No prompt loaded, so the call was not scored.';save('nsc_calls',calls);renderDash();return}
   try{
     rec.eval=await evaluate(rec);
   }catch(e){rec.note='Scoring failed: '+(e.message||e)}
@@ -375,7 +372,7 @@ async function endCall(){
 
 async function evaluate(rec){
   var tx=rec.transcript.map(function(t){return (t.role==='me'?'CANDIDATE: ':'NEHA: ')+t.text}).join('\n');
-  var p='You are the call evaluator. Score the call transcript strictly as per the rubric below. Do not add rules of your own. Apply dimensions, scales, fatal rules and the pass mark exactly as written in the rubric.\n\nRUBRIC:\n'+S.rubric+(S.kb?'\n\nKNOWLEDGE BOOK (use it to check facts):\n'+S.kb:'')+'\n\nTRANSCRIPT:\n'+tx+'\n\nReturn JSON only in this shape: {"dimensions":[{"name":"","score":0,"max":5,"reason":""}],"fatal":{"triggered":false,"reason":""},"total_score":0,"max_total":100,"passed":false,"summary":"","strengths":[""],"growth_areas":[""]}. Use the dimension names from the rubric. Keep reasons short.';
+  var p='You are the call evaluator. Score the call transcript strictly as per the rubric. The rubric is written inside the coach prompt below. Use only its rubric part for scoring, and ignore the rest. Do not add rules of your own. Apply dimensions, scales, fatal rules and the pass mark exactly as written there.\n\nCOACH PROMPT WITH RUBRIC:\n'+S.prompt+(S.kb?'\n\nKNOWLEDGE BOOK (use it to check facts):\n'+S.kb:'')+'\n\nTRANSCRIPT:\n'+tx+'\n\nReturn JSON only in this shape: {"dimensions":[{"name":"","score":0,"max":5,"reason":""}],"fatal":{"triggered":false,"reason":""},"total_score":0,"max_total":100,"passed":false,"summary":"","strengths":[""],"growth_areas":[""]}. Use the dimension names from the rubric. Keep reasons short.';
   var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+S.scoreModel+':generateContent?key='+encodeURIComponent(S.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:p}]}],generationConfig:{responseMimeType:'application/json',temperature:0}})});
   var j=await r.json();
   if(j.error)throw new Error(j.error.message);
@@ -397,7 +394,7 @@ function renderDash(){
   if(e){sc=e.total_score+'/'+e.max_total;res=(e.fatal&&e.fatal.triggered)?'Fatal':(e.passed?'Passed':'Not passed')}
   var h='<h2>Dashboard</h2><p class="muted">'+esc(r.candidate)+', '+new Date(r.date).toLocaleString()+'. '+calls.length+' call'+(calls.length>1?'s':'')+' so far'+(avg!==null?', average score '+avg+'%':'')+'.</p>';
   h+='<div class="kpis"><div class="kpi"><span>Score</span><p>'+(sc||'None')+'</p></div><div class="kpi"><span>Result</span><p>'+res+'</p></div><div class="kpi"><span>Call time</span><p>'+f(r.duration)+'</p></div></div>';
-  if(!e&&!r.note&&r.transcript.length>=2&&S.rubric)h+='<p class="muted">Scoring the call...</p>';
+  if(!e&&!r.note&&r.transcript.length>=2&&S.prompt)h+='<p class="muted">Scoring the call...</p>';
   if(r.note)h+='<p class="muted">'+esc(r.note)+'</p>';
   if(e){
     (e.dimensions||[]).forEach(function(d){h+='<div class="row" title="'+esc(d.reason)+'"><label>'+esc(d.name)+'</label><div class="tr"><div style="width:'+Math.max(0,Math.min(100,d.score/d.max*100))+'%"></div></div><span>'+d.score+'/'+d.max+'</span></div>'});
