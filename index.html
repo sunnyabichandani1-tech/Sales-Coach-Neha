@@ -36,10 +36,10 @@ button{font-family:inherit;cursor:pointer}
 .pills{display:flex;gap:8px}
 .pill{background:rgba(255,255,255,.14);padding:8px 18px;border-radius:22px;font-size:17px;font-weight:500}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef5a5a;margin-right:6px}
-.state.turn{background:#4cb782}.state.idle{background:#6b6a85}
+.state.turn{background:#4cb782}.state.idle{background:rgba(255,255,255,.14);color:#e6e1f5}
 .int{color:#9a98ad}
 .state{background:linear-gradient(90deg,#7a3fd0,#d6516b);padding:8px 22px;border-radius:22px;font-size:15px;letter-spacing:2px;font-weight:600}
-.idle{display:none;flex:1;overflow:auto;padding:30px;flex-direction:column;gap:14px;background:#fff}.pre .idle{display:flex}.pre .pills .pill:first-child{display:none}.pre .chat,.pre .ctl{display:none}.idle .msg.neha{max-width:100%}
+.idle{display:none;flex:1;overflow:auto;padding:30px;flex-direction:column;gap:14px;background:#fff}.pre .idle{display:flex}.pre .pills .pill:first-child{display:none}.pre .chat,.pre .ctl{display:none}.idle .msg{max-width:88%}.go{display:none;border-top:1px solid #ecebf3;background:#f7f7fb;padding:28px 40px 22px;text-align:center}.pre .go{display:block}.pre .state{padding:10px 20px!important;min-height:0!important;height:auto!important;font-size:15px}.pre .bars{display:none}.gob{width:100%;display:flex;align-items:center;justify-content:center;gap:14px;border:none;border-radius:16px;padding:22px;font-size:24px;font-weight:500;color:#fff;background:linear-gradient(90deg,#6a2bd6,#9a2fb0 50%,#e04e63);box-shadow:0 10px 24px rgba(122,63,208,.3);cursor:pointer}.gob svg{width:26px;height:26px}.gon{margin-top:14px;color:#6b6a85;font-size:16px}
 .chat{flex:1;overflow:auto;padding:30px;display:flex;flex-direction:column;gap:18px;background:#fff}
 .msg{max-width:88%;padding:18px 24px;border-radius:20px;border:1px solid #e6e4f0;background:#f7f7fb}
 .msg b{display:block;font-size:13px;letter-spacing:3px;color:#6b6a85;margin-bottom:4px;font-weight:600}
@@ -116,13 +116,10 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 </div>
 </div>
 <div class="idle" id="idle">
-<div class="msg neha"><p>Hi, I am Neha, your AI sales coach. Tell me your name and start the call when you are ready.</p></div>
-<div class="chk" id="chk"></div>
-<label class="lbl" for="cand">Your name</label>
-<input type="text" id="cand" placeholder="Rahul">
-<div class="acts"><button class="pri" onclick="startCall()">Start call</button><button class="sec2" onclick="show('set')">Open settings</button></div>
+<div class="msg"><b>NEHA</b><p>Hi, I am Neha, your AI sales coach. Ready to practise your Bajaj EMI Card pitch?</p></div>
 </div>
 <div class="chat" id="chat"></div>
+<div class="go"><button class="gob" onclick="startCall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Start my practice call</button><div class="gon">Voice role play, scored on the rubric</div></div>
 <div class="ctl">
 <button class="cb" id="mute" onclick="muteTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="ml">Mute</span></button>
 <button class="cb" id="cap" onclick="capTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7L4 20l1.2-4.3A8 8 0 1 1 21 12z"/></svg><span>Captions</span></button>
@@ -138,6 +135,8 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 <section class="card pad hide" id="p-set">
 <h2>Settings</h2>
 <p class="muted">The key, prompt and Knowledge Book you add here are saved only in this browser. The key is shown as dots and is not in the code. If you do not upload a prompt or KB, the version in the code is used. Nothing is sent anywhere except to Google Gemini.</p>
+<label class="lbl" for="cand">Your name</label>
+<input type="text" id="cand" placeholder="Rahul">
 <label class="lbl" for="s-key">Gemini API key</label>
 <input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
 <div class="two">
@@ -188,7 +187,7 @@ function f(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).p
 var PAGES=['start','call','dash','hist','set'];
 function show(k){
   PAGES.forEach(function(x){if(x!=='start')$('p-'+x).classList.toggle('hide',x!==(k==='start'?'call':k))});
-  if(k==='start'&&!active){$('p-call').classList.add('pre');setState('NOT CONNECTED',false);$('timer').textContent='00:00'}
+  if(k==='start'&&!active){$('p-call').classList.add('pre');setState('READY',false);$('timer').textContent='00:00'}
   if(k==='start'&&active)k='call';
   var m={start:'n-call',call:'n-call',dash:'n-dash',hist:'n-hist',set:'n-set'}[k];
   ['n-call','n-dash','n-hist','n-set'].forEach(function(n){$(n).classList.toggle('on',n===m)});
@@ -198,10 +197,7 @@ function show(k){
   if(k==='set')fillSettings();
 }
 
-function renderStart(){
-  var items=[['Gemini API key',S.key],['Prompt (with rubric)',S.prompt],['Knowledge Book',S.kb]];
-  $('chk').innerHTML=items.map(function(i){return '<div><span class="'+(i[1]?'ok':'no')+'">'+(i[1]?'Ready':'Missing')+'</span>'+i[0]+'</div>'}).join('')+'<div class="muted">Voice: '+S.voice+'</div>';
-}
+function renderStart(){}
 
 var TONE={Zephyr:'bright',Puck:'upbeat',Charon:'informative',Kore:'firm',Fenrir:'excitable',Leda:'youthful',Orus:'firm',Aoede:'breezy',Callirrhoe:'easy going',Autonoe:'bright',Enceladus:'breathy',Iapetus:'clear',Umbriel:'easy going',Algieba:'smooth',Despina:'smooth',Erinome:'clear',Algenib:'gravelly',Rasalgethi:'informative',Laomedeia:'upbeat',Achernar:'soft',Alnilam:'firm',Schedar:'even',Gacrux:'mature',Pulcherrima:'forward',Achird:'friendly',Zubenelgenubi:'casual',Vindemiatrix:'gentle',Sadachbia:'lively',Sadaltager:'knowledgeable',Sulafat:'warm'};
 function fillSel(sel,list,cur,tone){
@@ -210,14 +206,14 @@ function fillSel(sel,list,cur,tone){
 }
 function cnt(k){var v=S[k]||'';$('c-'+k).textContent=v?v.length.toLocaleString()+' characters, '+(FROM[k]?'from '+FILES[k]+' in the code':'uploaded, saved in this browser'):'Nothing loaded. Add '+FILES[k]+' to the code.'}
 function fillSettings(){
-  $('s-key').value=S.key;
+  $('s-key').value=S.key;$('cand').value=S.name||'';
   fillSel($('s-live'),[],S.liveModel);fillSel($('s-score'),[],S.scoreModel);
   if(window.MODELS){fillSel($('s-live'),MODELS.live,S.liveModel);fillSel($('s-score'),MODELS.score,S.scoreModel)}
   fillSel($('s-voice'),VOICES,S.voice,1);
   ['prompt','kb'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
 }
 function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb'].indexOf(key)>=0){FROM[key]=0;setOvr(key,this.value);cnt(key)}})}
-bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');
+bind('cand','name');bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');
 $('s-key').addEventListener('change',function(){if(this.value)findModels()});
 
 var pickKey=null;
@@ -256,7 +252,7 @@ var sec=0,pauseSec=0,tick=null,tr=[],nextT=0,srcs=[],candName='',endedBy=false;
 function b64(buf){var s='',u=new Uint8Array(buf);for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
 function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer}
 
-function setState(t,on){$('state').className='state'+(t==='YOUR TURN'?' turn':(t==='PAUSED'||t==='NOT CONNECTED'||t==='CONNECTING'?' idle':''));$('state').textContent=t;$('bars').classList.toggle('on',!!on)}
+function setState(t,on){$('state').className='state'+(t==='YOUR TURN'?' turn':(t==='PAUSED'||t==='READY'||t==='NOT CONNECTED'||t==='CONNECTING'?' idle':''));$('state').textContent=t;$('bars').classList.toggle('on',!!on)}
 
 function bubble(role){
   var d=document.createElement('div');d.className='msg'+(role==='me'?' me':'');
@@ -288,9 +284,10 @@ function sysLine(t){var d=document.createElement('div');d.className='sys';d.text
 var WORKLET='class P extends AudioWorkletProcessor{constructor(){super();this.b=[];this.n=0}process(i){var c=i[0][0];if(c){this.b.push(new Float32Array(c));this.n+=c.length;if(this.n>=1600){var o=new Float32Array(this.n),k=0;for(var a of this.b){o.set(a,k);k+=a.length}this.b=[];this.n=0;this.port.postMessage(o,[o.buffer])}}return true}}registerProcessor("pcm",P)';
 
 async function startCall(){
-  if(!S.key){toast('Add the Gemini API key in Settings');return}
-  if(!S.prompt){toast('Add the prompt in Settings');return}
-  candName=$('cand').value.trim()||'Candidate';
+  if(!S.key){toast('Gemini key is missing. Add it in Settings.');return}
+  if(!S.prompt){toast('Prompt is not loaded. Upload it in Settings.');return}
+  if(!S.kb){toast('Knowledge Book is not loaded. Upload it in Settings.');return}
+  candName=(S.name||'').trim()||'Candidate';
   pendingEnd=false;tr=[];ps=[];lastP=null;sec=0;pauseSec=0;muted=false;paused=false;ready=false;endedBy=false;nextT=0;srcs=[];
   $('chat').innerHTML='';$('timer').textContent='00:00';$('pt').textContent='00:00';$('pl').textContent='Pause';$('ml').textContent='Mute';$('mute').classList.remove('off');$('cap').classList.remove('off');$('chat').classList.remove('hide');$('live').textContent='Live';
   $('p-call').classList.remove('pre');show('call');setState('CONNECTING',false);
