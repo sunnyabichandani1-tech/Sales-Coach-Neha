@@ -23,7 +23,7 @@ button{font-family:inherit;cursor:pointer}
 .main.dark .card{box-shadow:0 20px 60px rgba(0,0,0,.45)}
 .head{background:linear-gradient(100deg,#1c1040,#2a1565 55%,#521b80);padding:26px 30px;display:flex;align-items:center;justify-content:space-between;color:#fff}
 .who{display:flex;align-items:center;gap:16px}
-.av{width:78px;height:78px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 5px rgba(155,134,232,.55),0 0 0 13px rgba(155,134,232,.18);background:#4a2b9c;overflow:hidden;flex:none;margin:6px 10px 6px 6px}
+.av{width:70px;height:70px;border-radius:50%;border:3px solid #f1eefc;box-shadow:0 0 0 4px rgba(255,255,255,.12);background:#4a2b9c;overflow:hidden;flex:none;margin:4px 8px 4px 2px}
 .av svg,.av img{width:100%;height:100%;object-fit:cover;display:block}
 .nm{font-family:Georgia,serif;font-size:32px;line-height:1.1}
 .rl{font-size:16px;color:#b9aee6;margin-top:2px}
@@ -36,11 +36,14 @@ button{font-family:inherit;cursor:pointer}
 .pills{display:flex;gap:8px}
 .pill{background:rgba(255,255,255,.14);padding:8px 18px;border-radius:22px;font-size:17px;font-weight:500}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef5a5a;margin-right:6px}
+.state.turn{background:#4cb782}.state.idle{background:#6b6a85}
+.int{color:#9a98ad}
 .state{background:linear-gradient(90deg,#7a3fd0,#d6516b);padding:8px 22px;border-radius:22px;font-size:15px;letter-spacing:2px;font-weight:600}
+.idle{display:none;flex:1;overflow:auto;padding:30px;flex-direction:column;gap:14px;background:#fff}.pre .idle{display:flex}.pre .pills .pill:first-child{display:none}.pre .chat,.pre .ctl{display:none}.idle .msg.neha{max-width:100%}
 .chat{flex:1;overflow:auto;padding:30px;display:flex;flex-direction:column;gap:18px;background:#fff}
 .msg{max-width:88%;padding:18px 24px;border-radius:20px;border:1px solid #e6e4f0;background:#f7f7fb}
 .msg b{display:block;font-size:13px;letter-spacing:3px;color:#6b6a85;margin-bottom:4px;font-weight:600}
-.msg p{font-size:21px;line-height:1.4;white-space:pre-wrap}
+.msg p{font-size:20px;line-height:1.4;white-space:pre-wrap}
 .msg.live p::after{content:'|';margin-left:2px;color:#7a3fd0;animation:bl 1s steps(2) infinite}
 @keyframes bl{50%{opacity:0}}
 .msg.me{align-self:flex-end;background:#f3efff;border-color:#d9cffa}
@@ -98,14 +101,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 
 <main class="main">
 
-<section class="card pad hide" id="p-start">
-<h2>New call</h2>
-<p class="muted">Neha will run the call with the prompt and Knowledge Book from the files in the code.</p>
-<div class="chk" id="chk"></div>
-<label class="lbl" for="cand">Candidate name</label>
-<input type="text" id="cand" placeholder="Rahul">
-<div class="acts"><button class="pri" onclick="startCall()">Start call</button><button class="sec2" onclick="show('set')">Open settings</button></div>
-</section>
+
 
 <section class="card hide" id="p-call">
 <div class="head">
@@ -118,6 +114,13 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 <div class="pills"><span class="pill"><span class="dot"></span><span id="live">Live</span></span><span class="pill" id="timer">00:00</span></div>
 <span class="state" id="state">CONNECTING</span>
 </div>
+</div>
+<div class="idle" id="idle">
+<div class="msg neha"><p>Hi, I am Neha, your AI sales coach. Tell me your name and start the call when you are ready.</p></div>
+<div class="chk" id="chk"></div>
+<label class="lbl" for="cand">Your name</label>
+<input type="text" id="cand" placeholder="Rahul">
+<div class="acts"><button class="pri" onclick="startCall()">Start call</button><button class="sec2" onclick="show('set')">Open settings</button></div>
 </div>
 <div class="chat" id="chat"></div>
 <div class="ctl">
@@ -134,7 +137,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 
 <section class="card pad hide" id="p-set">
 <h2>Settings</h2>
-<p class="muted">The prompt (with the rubric inside it) and the Knowledge Book are read from files in the code (prompt.txt, knowledge-book.txt). They update on every release. Anything you upload here is used for this tab only and is not saved. The Gemini key is saved only in this browser on this device. It is shown as dots and is not in the code. Nothing is sent anywhere except to Google Gemini.</p>
+<p class="muted">The key, prompt and Knowledge Book you add here are saved only in this browser. The key is shown as dots and is not in the code. If you do not upload a prompt or KB, the version in the code is used. Nothing is sent anywhere except to Google Gemini.</p>
 <label class="lbl" for="s-key">Gemini API key</label>
 <input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
 <div class="two">
@@ -148,12 +151,12 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 <div class="ups"><button class="sec2" onclick="$('photo').click()">Upload photo</button><button class="sec2" onclick="clearPhoto()">Use default</button></div>
 <input type="file" id="photo" class="hide" accept="image/*">
 
-<label class="lbl">Prompt with rubric (read from prompt.txt in the code)</label>
-<div class="ups"><button class="sec2" onclick="pick('prompt')">Upload to test in this tab</button><span class="muted" id="c-prompt"></span></div>
+<label class="lbl">Prompt with rubric</label>
+<div class="ups"><button class="sec2" onclick="pick('prompt')">Upload prompt</button><button class="sec2" onclick="useCode('prompt')">Use code version</button><span class="muted" id="c-prompt"></span></div>
 <textarea id="s-prompt" placeholder="Paste the prompt, or upload a .txt, .md or .docx file"></textarea>
 
-<label class="lbl">Knowledge Book (read from knowledge-book.txt in the code)</label>
-<div class="ups"><button class="sec2" onclick="pick('kb')">Upload file</button><span class="muted" id="c-kb"></span></div>
+<label class="lbl">Knowledge Book</label>
+<div class="ups"><button class="sec2" onclick="pick('kb')">Upload KB</button><button class="sec2" onclick="useCode('kb')">Use code version</button><span class="muted" id="c-kb"></span></div>
 <textarea id="s-kb" placeholder="Paste the Knowledge Book, or upload a .txt, .md or .docx file"></textarea>
 
 <input type="file" id="file" class="hide" accept=".txt,.md,.json,.docx">
@@ -170,8 +173,11 @@ var VOICES=['Kore','Zephyr','Puck','Charon','Fenrir','Leda','Orus','Aoede','Call
 function saveS(){var c=Object.assign({},S);delete c.prompt;delete c.kb;delete c.rubric;delete c.sink;save('nsc_settings',c)}
 var S=Object.assign({key:'',voice:'Kore',liveModel:'gemini-2.5-flash-native-audio-preview-12-2025',scoreModel:'gemini-2.5-flash',prompt:'',kb:'',rubric:''},load('nsc_settings',{}));
 S.prompt='';S.kb='';S.rubric='';
+var OVR={prompt:load('nsc_prompt',''),kb:load('nsc_kb','')};
+function setOvr(k,v){OVR[k]=v;save('nsc_'+k,v)}
+function useCode(k){setOvr(k,'');loadFiles().then(function(){toast('Using the version in the code')})}
 var FILES={prompt:'prompt.txt',kb:'knowledge-book.txt'},FROM={};
-function loadFiles(){return Promise.all(Object.keys(FILES).map(function(k){return fetch(FILES[k]+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){if(t&&t.trim()&&!/^\s*<!DOCTYPE/i.test(t)){S[k]=t;FROM[k]=1}}).catch(function(){})})).then(function(){if(S.key)findModels();if(!$('p-start').classList.contains('hide'))renderStart();if(!$('p-set').classList.contains('hide'))fillSettings()})}
+function loadFiles(){return Promise.all(Object.keys(FILES).map(function(k){return fetch(FILES[k]+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){if(t&&t.trim()&&!/^\s*<!DOCTYPE/i.test(t)){S[k]=t;FROM[k]=1}}).catch(function(){}).then(function(){if(OVR[k]){S[k]=OVR[k];FROM[k]=0}})})).then(function(){if(S.key)findModels();if($('p-call').classList.contains('pre'))renderStart();if(!$('p-set').classList.contains('hide'))fillSettings()})}
 delete S.key_old;
 var calls=load('nsc_calls',[]);
 var selId=null;
@@ -181,10 +187,12 @@ function f(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).p
 
 var PAGES=['start','call','dash','hist','set'];
 function show(k){
-  PAGES.forEach(function(x){$('p-'+x).classList.toggle('hide',x!==k)});
+  PAGES.forEach(function(x){if(x!=='start')$('p-'+x).classList.toggle('hide',x!==(k==='start'?'call':k))});
+  if(k==='start'&&!active){$('p-call').classList.add('pre');setState('NOT CONNECTED',false);$('timer').textContent='00:00'}
+  if(k==='start'&&active)k='call';
   var m={start:'n-call',call:'n-call',dash:'n-dash',hist:'n-hist',set:'n-set'}[k];
   ['n-call','n-dash','n-hist','n-set'].forEach(function(n){$(n).classList.toggle('on',n===m)});
-  $('p-call').parentNode.classList.toggle('dark',k==='call');
+  $('p-call').parentNode.classList.toggle('dark',k==='call'||k==='start');
   if(k==='start')renderStart();
   if(k==='hist')renderHist();
   if(k==='set')fillSettings();
@@ -200,7 +208,7 @@ function fillSel(sel,list,cur,tone){
   var l=list.slice();if(cur&&l.indexOf(cur)<0)l.unshift(cur);
   sel.innerHTML='';l.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=(tone&&TONE[n])?n+' ('+TONE[n]+')':n;sel.appendChild(o)});sel.value=cur;
 }
-function cnt(k){var v=S[k]||'';$('c-'+k).textContent=v?v.length.toLocaleString()+' characters, '+(FROM[k]?'from '+FILES[k]+' in the code':'added for this tab only'):'Nothing loaded. Add '+FILES[k]+' to the code.'}
+function cnt(k){var v=S[k]||'';$('c-'+k).textContent=v?v.length.toLocaleString()+' characters, '+(FROM[k]?'from '+FILES[k]+' in the code':'uploaded, saved in this browser'):'Nothing loaded. Add '+FILES[k]+' to the code.'}
 function fillSettings(){
   $('s-key').value=S.key;
   fillSel($('s-live'),[],S.liveModel);fillSel($('s-score'),[],S.scoreModel);
@@ -208,7 +216,7 @@ function fillSettings(){
   fillSel($('s-voice'),VOICES,S.voice,1);
   ['prompt','kb'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
 }
-function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb'].indexOf(key)>=0){FROM[key]=0;cnt(key)}})}
+function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb'].indexOf(key)>=0){FROM[key]=0;setOvr(key,this.value);cnt(key)}})}
 bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');
 $('s-key').addEventListener('change',function(){if(this.value)findModels()});
 
@@ -216,7 +224,7 @@ var pickKey=null;
 function pick(k){pickKey=k;$('file').value='';$('file').click()}
 $('file').addEventListener('change',function(){
   var fl=this.files[0];if(!fl||!pickKey)return;var k=pickKey;
-  function done(t){S[k]=t;FROM[k]=0;saveS();$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
+  function done(t){S[k]=t;FROM[k]=0;setOvr(k,t);saveS();$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
   if(/\.docx$/i.test(fl.name)){
     if(!window.mammoth){toast('Word reader did not load. Save the file as .txt and try again.');return}
     var r=new FileReader();r.onload=function(){mammoth.extractRawText({arrayBuffer:r.result}).then(function(x){done(x.value)}).catch(function(){toast('Could not read this Word file')})};r.readAsArrayBuffer(fl);
@@ -248,18 +256,32 @@ var sec=0,pauseSec=0,tick=null,tr=[],nextT=0,srcs=[],candName='',endedBy=false;
 function b64(buf){var s='',u=new Uint8Array(buf);for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
 function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer}
 
-function setState(t,on){$('state').textContent=t;$('bars').classList.toggle('on',!!on)}
+function setState(t,on){$('state').className='state'+(t==='YOUR TURN'?' turn':(t==='PAUSED'||t==='NOT CONNECTED'||t==='CONNECTING'?' idle':''));$('state').textContent=t;$('bars').classList.toggle('on',!!on)}
 
 function bubble(role){
   var d=document.createElement('div');d.className='msg'+(role==='me'?' me':'');
   d.innerHTML='<b>'+(role==='me'?'YOU':'NEHA')+'</b><p></p>';$('chat').appendChild(d);return d.querySelector('p');
 }
 var lastP=null;
+var ps=[];
+function paint(e,p){
+  p.textContent='';
+  if(e.role==='me'&&e.live&&e.chunk&&e.text.length>=e.chunk.length){
+    p.appendChild(document.createTextNode(e.text.slice(0,e.text.length-e.chunk.length)));
+    var sp=document.createElement('span');sp.className='int';sp.textContent=e.chunk;p.appendChild(sp);
+  }else p.textContent=e.text;
+}
+function finalizeUser(){var i=tr.length-1;if(i>=0&&tr[i].role==='me'&&tr[i].live){tr[i].live=false;paint(tr[i],ps[i])}}
 function addText(role,text){
   if(!text)return;
+  if(role==='neha')finalizeUser();
   var last=tr[tr.length-1];
-  if(last&&last.role===role){last.text+=text}else{if(!text.trim())return;tr.push({role:role,text:text.replace(/^\s+/,'')});lastP=bubble(role)}
-  lastP.textContent=tr[tr.length-1].text;[].forEach.call($('chat').querySelectorAll('.live'),function(x){x.classList.remove('live')});lastP.parentNode.classList.add('live');$('chat').scrollTop=$('chat').scrollHeight;
+  if(last&&last.role===role){last.text+=text;last.chunk=text}
+  else{if(!text.trim())return;var t=text.replace(/^\s+/,'');tr.push({role:role,text:t,chunk:t,live:role==='me'});ps.push(bubble(role))}
+  var i=tr.length-1;paint(tr[i],ps[i]);
+  [].forEach.call($('chat').querySelectorAll('.live'),function(x){x.classList.remove('live')});
+  if(role==='neha')ps[i].parentNode.classList.add('live');
+  $('chat').scrollTop=$('chat').scrollHeight;
 }
 function sysLine(t){var d=document.createElement('div');d.className='sys';d.textContent=t;$('chat').appendChild(d)}
 
@@ -269,9 +291,9 @@ async function startCall(){
   if(!S.key){toast('Add the Gemini API key in Settings');return}
   if(!S.prompt){toast('Add the prompt in Settings');return}
   candName=$('cand').value.trim()||'Candidate';
-  pendingEnd=false;tr=[];lastP=null;sec=0;pauseSec=0;muted=false;paused=false;ready=false;endedBy=false;nextT=0;srcs=[];
+  pendingEnd=false;tr=[];ps=[];lastP=null;sec=0;pauseSec=0;muted=false;paused=false;ready=false;endedBy=false;nextT=0;srcs=[];
   $('chat').innerHTML='';$('timer').textContent='00:00';$('pt').textContent='00:00';$('pl').textContent='Pause';$('ml').textContent='Mute';$('mute').classList.remove('off');$('cap').classList.remove('off');$('chat').classList.remove('hide');$('live').textContent='Live';
-  show('call');setState('CONNECTING',false);
+  $('p-call').classList.remove('pre');show('call');setState('CONNECTING',false);
   try{
     stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,channelCount:1}});
   }catch(e){toast('Microphone is blocked. Allow it in the browser and try again.');show('start');return}
@@ -329,16 +351,16 @@ function tryEnd(){if(!active)return;if(srcs.length){setTimeout(tryEnd,800);retur
 function handle(m){
   if(m.toolCall&&m.toolCall.functionCalls&&m.toolCall.functionCalls.some(function(c){return c.name==='end_call'})){if(!pendingEnd){pendingEnd=true;setTimeout(tryEnd,2500)}return}
   if(m.setupComplete){
-    ready=true;setState('LISTENING',false);
+    ready=true;setState('YOUR TURN',false);
     ws.send(JSON.stringify({realtimeInput:{text:'The call is connected. Begin the call now.'}}));
     return;
   }
   var c=m.serverContent;if(!c)return;
   if(c.turnComplete||c.interrupted){[].forEach.call($('chat').querySelectorAll('.live'),function(x){x.classList.remove('live')})}
-  if(c.interrupted){srcs.forEach(function(s){try{s.stop()}catch(e){}});srcs=[];nextT=0;setState('LISTENING',false)}
+  if(c.interrupted){srcs.forEach(function(s){try{s.stop()}catch(e){}});srcs=[];nextT=0;setState('YOUR TURN',false)}
   if(c.inputTranscription&&c.inputTranscription.text)addText('me',c.inputTranscription.text);
   if(c.outputTranscription&&c.outputTranscription.text)addText('neha',c.outputTranscription.text);
-  if(c.modelTurn&&c.modelTurn.parts){c.modelTurn.parts.forEach(function(p){if(p.inlineData&&p.inlineData.data)play(p.inlineData.data)})}
+  if(c.modelTurn&&c.modelTurn.parts){c.modelTurn.parts.forEach(function(p){if(p.inlineData&&p.inlineData.data){finalizeUser();play(p.inlineData.data)}})}
 }
 
 function play(b){
@@ -348,7 +370,7 @@ function play(b){
   var s=outCtx.createBufferSource();s.buffer=buf;s.connect(outCtx.destination);
   nextT=Math.max(nextT,outCtx.currentTime);s.start(nextT);nextT+=buf.duration;srcs.push(s);
   setState('SPEAKING',true);
-  s.onended=function(){srcs=srcs.filter(function(x){return x!==s});if(!srcs.length&&!paused)setState('LISTENING',false)};
+  s.onended=function(){srcs=srcs.filter(function(x){return x!==s});if(!srcs.length&&!paused)setState('YOUR TURN',false)};
 }
 
 function muteTog(){muted=!muted;$('ml').textContent=muted?'Unmute':'Mute';$('mute').classList.toggle('off',muted)}
@@ -370,7 +392,7 @@ function cleanup(){
 async function endCall(){
   if(!active)return;pendingEnd=false;
   endedBy=true;var dur=sec;cleanup();
-  var rec={id:Date.now(),date:new Date().toISOString(),candidate:candName,duration:dur,transcript:tr.slice(),eval:null,note:''};
+  var rec={id:Date.now(),date:new Date().toISOString(),candidate:candName,duration:dur,transcript:tr.map(function(e){return {role:e.role,text:e.text}}),eval:null,note:''};
   calls.unshift(rec);selId=rec.id;save('nsc_calls',calls);
   show('dash');renderDash();
   if(tr.length<2){rec.note='The call was too short to score.';save('nsc_calls',calls);renderDash();return}
