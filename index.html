@@ -128,7 +128,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 
 <section class="card pad hide" id="p-set">
 <h2>Settings</h2>
-<p class="muted">The prompt, Knowledge Book and rubric are read from files in the code (prompt.txt, knowledge-book.txt, rubric.txt). Anything you upload here is used for this tab only and is not saved. The API key is kept only while this tab is open. Nothing is sent anywhere except to Google Gemini.</p>
+<p class="muted">The prompt, Knowledge Book and rubric are read from files in the code (prompt.txt, knowledge-book.txt, rubric.txt). Anything you upload here is used for this tab only and is not saved. The Gemini key is read from gemini-key.txt in the code, or you can paste one here for this tab only. Nothing is sent anywhere except to Google Gemini.</p>
 <label class="lbl" for="s-key">Gemini API key</label>
 <input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
 <div class="two">
@@ -164,8 +164,8 @@ var VOICES=['Kore','Zephyr','Puck','Charon','Fenrir','Leda','Orus','Aoede','Call
 function saveS(){var c=Object.assign({},S);delete c.key;delete c.prompt;delete c.kb;delete c.rubric;save('nsc_settings',c);try{sessionStorage.setItem('nsc_key',S.key||'')}catch(e){}}
 var S=Object.assign({key:'',voice:'Kore',liveModel:'gemini-2.5-flash-native-audio-preview-12-2025',scoreModel:'gemini-2.5-flash',prompt:'',kb:'',rubric:''},load('nsc_settings',{}));
 S.prompt='';S.kb='';S.rubric='';
-var FILES={prompt:'prompt.txt',kb:'knowledge-book.txt',rubric:'rubric.txt'},FROM={};
-function loadFiles(){return Promise.all(Object.keys(FILES).map(function(k){return fetch(FILES[k]+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){if(t&&t.trim()&&!/^\s*<!DOCTYPE/i.test(t)){S[k]=t;FROM[k]=1}}).catch(function(){})})).then(function(){if(!$('p-start').classList.contains('hide'))renderStart();if(!$('p-set').classList.contains('hide'))fillSettings()})}
+var FILES={prompt:'prompt.txt',kb:'knowledge-book.txt',rubric:'rubric.txt',key:'gemini-key.txt'},FROM={};
+function loadFiles(){return Promise.all(Object.keys(FILES).map(function(k){return fetch(FILES[k]+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){if(t&&t.trim()&&!/^\s*<!DOCTYPE/i.test(t)){S[k]=(k==='key')?t.trim():t;FROM[k]=1}}).catch(function(){})})).then(function(){if(FROM.key)findModels();if(!$('p-start').classList.contains('hide'))renderStart();if(!$('p-set').classList.contains('hide'))fillSettings()})}
 try{S.key=sessionStorage.getItem('nsc_key')||''}catch(e){}
 delete S.key_old;
 var calls=load('nsc_calls',[]);
