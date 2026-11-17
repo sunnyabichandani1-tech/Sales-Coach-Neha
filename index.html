@@ -128,7 +128,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 
 <section class="card pad hide" id="p-set">
 <h2>Settings</h2>
-<p class="muted">Your prompt, Knowledge Book and rubric are saved in this browser only. The API key is kept only while this tab is open, and is never stored. Nothing is sent anywhere except to Google Gemini.</p>
+<p class="muted">The prompt, Knowledge Book and rubric are read from files in the code (prompt.txt, knowledge-book.txt, rubric.txt). Anything you upload here is used for this tab only and is not saved. The API key is kept only while this tab is open. Nothing is sent anywhere except to Google Gemini.</p>
 <label class="lbl" for="s-key">Gemini API key</label>
 <input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
 <div class="two">
@@ -139,15 +139,15 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 <label class="lbl" for="s-voice">Neha's voice</label>
 <select id="s-voice"></select>
 
-<label class="lbl">Prompt (same as in your agent builder)</label>
-<div class="ups"><button class="sec2" onclick="pick('prompt')">Upload file</button><span class="muted" id="c-prompt"></span></div>
+<label class="lbl">Prompt (read from prompt.txt in the code)</label>
+<div class="ups"><button class="sec2" onclick="pick('prompt')">Upload to test in this tab</button><span class="muted" id="c-prompt"></span></div>
 <textarea id="s-prompt" placeholder="Paste the prompt, or upload a .txt, .md or .docx file"></textarea>
 
-<label class="lbl">Knowledge Book</label>
+<label class="lbl">Knowledge Book (read from knowledge-book.txt in the code)</label>
 <div class="ups"><button class="sec2" onclick="pick('kb')">Upload file</button><span class="muted" id="c-kb"></span></div>
 <textarea id="s-kb" placeholder="Paste the Knowledge Book, or upload a .txt, .md or .docx file"></textarea>
 
-<label class="lbl">Rubric</label>
+<label class="lbl">Rubric (read from rubric.txt in the code)</label>
 <div class="ups"><button class="sec2" onclick="pick('rubric')">Upload file</button><span class="muted" id="c-rubric"></span></div>
 <textarea id="s-rubric" placeholder="Paste the rubric with dimensions, scores, fatals and pass mark"></textarea>
 <input type="file" id="file" class="hide" accept=".txt,.md,.json,.docx">
@@ -161,8 +161,11 @@ var $=function(i){return document.getElementById(i)};
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var VOICES=['Kore','Zephyr','Puck','Charon','Fenrir','Leda','Orus','Aoede','Callirrhoe','Autonoe','Enceladus','Iapetus','Umbriel','Algieba','Despina','Erinome','Algenib','Rasalgethi','Laomedeia','Achernar','Alnilam','Schedar','Gacrux','Pulcherrima','Achird','Zubenelgenubi','Vindemiatrix','Sadachbia','Sadaltager','Sulafat'];
-function saveS(){var c=Object.assign({},S);delete c.key;save('nsc_settings',c);try{sessionStorage.setItem('nsc_key',S.key||'')}catch(e){}}
+function saveS(){var c=Object.assign({},S);delete c.key;delete c.prompt;delete c.kb;delete c.rubric;save('nsc_settings',c);try{sessionStorage.setItem('nsc_key',S.key||'')}catch(e){}}
 var S=Object.assign({key:'',voice:'Kore',liveModel:'gemini-2.5-flash-native-audio-preview-12-2025',scoreModel:'gemini-2.5-flash',prompt:'',kb:'',rubric:''},load('nsc_settings',{}));
+S.prompt='';S.kb='';S.rubric='';
+var FILES={prompt:'prompt.txt',kb:'knowledge-book.txt',rubric:'rubric.txt'},FROM={};
+function loadFiles(){return Promise.all(Object.keys(FILES).map(function(k){return fetch(FILES[k]+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){if(t&&t.trim()&&!/^\s*<!DOCTYPE/i.test(t)){S[k]=t;FROM[k]=1}}).catch(function(){})})).then(function(){if(!$('p-start').classList.contains('hide'))renderStart();if(!$('p-set').classList.contains('hide'))fillSettings()})}
 try{S.key=sessionStorage.getItem('nsc_key')||''}catch(e){}
 delete S.key_old;
 var calls=load('nsc_calls',[]);
@@ -190,7 +193,7 @@ function fillSel(sel,list,cur){
   var l=list.slice();if(cur&&l.indexOf(cur)<0)l.unshift(cur);
   sel.innerHTML='';l.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});sel.value=cur;
 }
-function cnt(k){var v=S[k]||'';$('c-'+k).textContent=v?v.length.toLocaleString()+' characters loaded':'Nothing loaded'}
+function cnt(k){var v=S[k]||'';$('c-'+k).textContent=v?v.length.toLocaleString()+' characters, '+(FROM[k]?'from '+FILES[k]+' in the code':'added for this tab only'):'Nothing loaded. Add '+FILES[k]+' to the code.'}
 function fillSettings(){
   $('s-key').value=S.key;
   fillSel($('s-live'),[],S.liveModel);fillSel($('s-score'),[],S.scoreModel);
@@ -198,7 +201,7 @@ function fillSettings(){
   fillSel($('s-voice'),VOICES,S.voice);
   ['prompt','kb','rubric'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
 }
-function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb','rubric'].indexOf(key)>=0)cnt(key)})}
+function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb','rubric'].indexOf(key)>=0){FROM[key]=0;cnt(key)}})}
 bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');bind('s-rubric','rubric');
 $('s-key').addEventListener('change',function(){if(this.value)findModels()});
 
@@ -206,7 +209,7 @@ var pickKey=null;
 function pick(k){pickKey=k;$('file').value='';$('file').click()}
 $('file').addEventListener('change',function(){
   var fl=this.files[0];if(!fl||!pickKey)return;var k=pickKey;
-  function done(t){S[k]=t;saveS();$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
+  function done(t){S[k]=t;FROM[k]=0;saveS();$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
   if(/\.docx$/i.test(fl.name)){
     if(!window.mammoth){toast('Word reader did not load. Save the file as .txt and try again.');return}
     var r=new FileReader();r.onload=function(){mammoth.extractRawText({arrayBuffer:r.result}).then(function(x){done(x.value)}).catch(function(){toast('Could not read this Word file')})};r.readAsArrayBuffer(fl);
@@ -415,7 +418,7 @@ function renderHist(){
   }).join('')+'<div class="acts"><button class="sec2" onclick="if(confirm(\'Delete all past calls?\')){calls=[];selId=null;save(\'nsc_calls\',calls);renderHist()}">Clear history</button></div>';
 }
 
-show('start');
+show('start');loadFiles();
 </script>
 </body>
 </html>
