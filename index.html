@@ -128,7 +128,7 @@ details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:15px}
 
 <section class="card pad hide" id="p-set">
 <h2>Settings</h2>
-<p class="muted">Everything here is saved in this browser only. Nothing is sent anywhere except to Google Gemini.</p>
+<p class="muted">Your prompt, Knowledge Book and rubric are saved in this browser only. The API key is kept only while this tab is open, and is never stored. Nothing is sent anywhere except to Google Gemini.</p>
 <label class="lbl" for="s-key">Gemini API key</label>
 <input type="password" id="s-key" placeholder="Paste your key" autocomplete="off">
 <div class="two">
@@ -161,7 +161,10 @@ var $=function(i){return document.getElementById(i)};
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var VOICES=['Kore','Zephyr','Puck','Charon','Fenrir','Leda','Orus','Aoede','Callirrhoe','Autonoe','Enceladus','Iapetus','Umbriel','Algieba','Despina','Erinome','Algenib','Rasalgethi','Laomedeia','Achernar','Alnilam','Schedar','Gacrux','Pulcherrima','Achird','Zubenelgenubi','Vindemiatrix','Sadachbia','Sadaltager','Sulafat'];
+function saveS(){var c=Object.assign({},S);delete c.key;save('nsc_settings',c);try{sessionStorage.setItem('nsc_key',S.key||'')}catch(e){}}
 var S=Object.assign({key:'',voice:'Kore',liveModel:'gemini-2.5-flash-native-audio-preview-12-2025',scoreModel:'gemini-2.5-flash',prompt:'',kb:'',rubric:''},load('nsc_settings',{}));
+try{S.key=sessionStorage.getItem('nsc_key')||''}catch(e){}
+delete S.key_old;
 var calls=load('nsc_calls',[]);
 var selId=null;
 
@@ -195,7 +198,7 @@ function fillSettings(){
   fillSel($('s-voice'),VOICES,S.voice);
   ['prompt','kb','rubric'].forEach(function(k){$('s-'+k).value=S[k];cnt(k)});
 }
-function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;save('nsc_settings',S);if(['prompt','kb','rubric'].indexOf(key)>=0)cnt(key)})}
+function bind(id,key){$(id).addEventListener('input',function(){S[key]=this.value;saveS();if(['prompt','kb','rubric'].indexOf(key)>=0)cnt(key)})}
 bind('s-key','key');bind('s-live','liveModel');bind('s-score','scoreModel');bind('s-voice','voice');bind('s-prompt','prompt');bind('s-kb','kb');bind('s-rubric','rubric');
 $('s-key').addEventListener('change',function(){if(this.value)findModels()});
 
@@ -203,7 +206,7 @@ var pickKey=null;
 function pick(k){pickKey=k;$('file').value='';$('file').click()}
 $('file').addEventListener('change',function(){
   var fl=this.files[0];if(!fl||!pickKey)return;var k=pickKey;
-  function done(t){S[k]=t;save('nsc_settings',S);$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
+  function done(t){S[k]=t;saveS();$('s-'+k).value=t;cnt(k);toast(fl.name+' loaded')}
   if(/\.docx$/i.test(fl.name)){
     if(!window.mammoth){toast('Word reader did not load. Save the file as .txt and try again.');return}
     var r=new FileReader();r.onload=function(){mammoth.extractRawText({arrayBuffer:r.result}).then(function(x){done(x.value)}).catch(function(){toast('Could not read this Word file')})};r.readAsArrayBuffer(fl);
@@ -224,7 +227,7 @@ function findModels(){
     window.MODELS={live:live,score:score};
     if(live.length&&live.indexOf(S.liveModel)<0){var nat=live.filter(function(n){return /native-audio/.test(n)});S.liveModel=(nat[nat.length-1]||live[0])}
     if(score.length&&score.indexOf(S.scoreModel)<0)S.scoreModel=score[0];
-    save('nsc_settings',S);fillSettings();
+    saveS();fillSettings();
     $('mstat').textContent=live.length+' voice models and '+score.length+' scoring models found';
   }).catch(function(){$('mstat').textContent='Could not reach Google. Check the key and network.'});
 }
