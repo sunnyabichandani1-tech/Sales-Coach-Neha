@@ -269,7 +269,7 @@ async function startCall(){
   if(!S.key){toast('Add the Gemini API key in Settings');return}
   if(!S.prompt){toast('Add the prompt in Settings');return}
   candName=$('cand').value.trim()||'Candidate';
-  tr=[];lastP=null;sec=0;pauseSec=0;muted=false;paused=false;ready=false;endedBy=false;nextT=0;srcs=[];
+  pendingEnd=false;tr=[];lastP=null;sec=0;pauseSec=0;muted=false;paused=false;ready=false;endedBy=false;nextT=0;srcs=[];
   $('chat').innerHTML='';$('timer').textContent='00:00';$('pt').textContent='00:00';$('pl').textContent='Pause';$('ml').textContent='Mute';$('mute').classList.remove('off');$('cap').classList.remove('off');$('chat').classList.remove('hide');$('live').textContent='Live';
   show('call');setState('CONNECTING',false);
   try{
@@ -289,9 +289,7 @@ async function startCall(){
       ws.send(JSON.stringify({realtimeInput:{audio:{data:b64(i16.buffer),mimeType:'audio/pcm;rate=16000'}}}));
     };
   }catch(e){toast('Audio setup failed in this browser');cleanup();show('start');return}
-  var sys=S.prompt;
-  if(S.kb)sys+='\n\nKnowledge Book:\n'+S.kb;
-  sys+='\n\nCall metadata:\ncandidate_name: '+candName;
+  var sys=buildSys();
   ws=new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key='+encodeURIComponent(S.key));
   ws.binaryType='arraybuffer';
   ws.onopen=function(){
@@ -299,6 +297,7 @@ async function startCall(){
       model:'models/'+S.liveModel,
       generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:S.voice}}}},
       systemInstruction:{parts:[{text:sys}]},
+      tools:[{functionDeclarations:[{name:'end_call',description:'Ends the call. Call it only after your final spoken line.'}]}],
       inputAudioTranscription:{},outputAudioTranscription:{}
     }}));
   };
@@ -317,7 +316,18 @@ async function startCall(){
   tick=setInterval(function(){if(!ready)return;if(paused){pauseSec++;$('pt').textContent=f(pauseSec)}else{sec++;$('timer').textContent=f(sec)}},1000);
 }
 
+function buildSys(){
+  var sys=S.prompt;
+  if(sys.indexOf('{user_name}')>=0)sys=sys.replace(/\{user_name\}/g,function(){return candName});
+  else sys+='\n\nCall metadata:\ncandidate_name: '+candName;
+  if(sys.indexOf('{knowledge_book}')>=0)sys=sys.replace(/\{knowledge_book\}/g,function(){return S.kb});
+  else if(S.kb)sys+='\n\nKnowledge Book:\n'+S.kb;
+  return sys;
+}
+var pendingEnd=false;
+function tryEnd(){if(!active)return;if(srcs.length){setTimeout(tryEnd,800);return}endCall()}
 function handle(m){
+  if(m.toolCall&&m.toolCall.functionCalls&&m.toolCall.functionCalls.some(function(c){return c.name==='end_call'})){if(!pendingEnd){pendingEnd=true;setTimeout(tryEnd,2500)}return}
   if(m.setupComplete){
     ready=true;setState('LISTENING',false);
     ws.send(JSON.stringify({realtimeInput:{text:'The call is connected. Begin the call now.'}}));
@@ -358,6 +368,7 @@ function cleanup(){
 }
 
 async function endCall(){
+  if(!active)return;pendingEnd=false;
   endedBy=true;var dur=sec;cleanup();
   var rec={id:Date.now(),date:new Date().toISOString(),candidate:candName,duration:dur,transcript:tr.slice(),eval:null,note:''};
   calls.unshift(rec);selId=rec.id;save('nsc_calls',calls);
